@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cumpleaños Ale</title>
     <style>
+        /* Fondo de bosque mágico */
         body {
             background: linear-gradient(to bottom, #d4ebd0 0%, #4caf50 40%, #1b5e20 100%);
             min-height: 100vh;
@@ -14,51 +15,102 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        .galeria {
+            
+            /* Centramos todo en la pantalla */
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
+            flex-direction: column;
+            align-items: center;
         }
 
+        /* Contenedor principal donde pasarán las fotos */
+        #carrusel {
+            position: relative;
+            width: 100%;
+            max-width: 400px; /* Ancho máximo de la foto */
+            height: 500px; /* Alto fijo para que la página no brinque */
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Estilo general de las fotos (ocultas por defecto) */
         img {
+            position: absolute;
             border: 5px solid white;
             border-radius: 15px;
             box-shadow: 0px 4px 8px rgba(0,0,0,0.5);
-            width: 300px;
-            height: auto;
-            transition: transform 0.3s;
+            max-width: 100%;
+            max-height: 100%;
+            opacity: 0; /* Las fotos inician transparentes */
+            transition: opacity 1s ease-in-out; /* Efecto suave de transición de 1 segundo */
         }
 
-        img:hover {
-            transform: scale(1.05);
+        /* Clase especial para la foto que se está mostrando en el momento */
+        img.activa {
+            opacity: 1; /* Hace la foto visible */
+            z-index: 1; /* La pone por encima de las demás */
         }
     </style>
 </head>
 <body>
 
     <h1>¡Feliz Cumpleaños Ale! 🌲✨</h1>
-    <p>Aquí están nuestros mejores recuerdos en este bosque mágico:</p>
+    <p>Nuestros recuerdos en este bosque mágico:</p>
     
-    <!-- Este contenedor está vacío, JavaScript creará las fotos aquí adentro -->
-    <div class="galeria" id="galeria-fotos"></div>
+    <!-- Aquí aparecerán las fotos una por una -->
+    <div id="carrusel">
+        <p id="mensaje">Cargando la magia...</p>
+    </div>
     
     <script>
-        // Usamos la API de GitHub para leer tu carpeta dinámicamente
         const usuario = 'marce20vazquez-code';
         const repositorio = 'cumplea-os_ale';
-        // Esta URL nos devuelve la lista de archivos que hay en tu carpeta 'fotos'
         const url = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         
-        const contenedorGaleria = document.getElementById('galeria-fotos');
+        const contenedor = document.getElementById('carrusel');
+        const mensaje = document.getElementById('mensaje');
+        let indiceActual = 0;
+        let imagenes = []; // Aquí guardaremos todas las fotos encontradas
 
         fetch(url)
             .then(respuesta => respuesta.json())
             .then(datos => {
-                // Iteramos sobre todos los archivos encontrados
+                // Buscamos todas las imágenes de la carpeta
                 datos.forEach(archivo => {
-                    // Filtramos para asegurarnos de que sean archivos de imagen
-                    if (archivo.type
+                    if (archivo.type === 'file' && archivo.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                        const img = document.createElement('img');
+                        img.src = `fotos/${archivo.name}`; 
+                        img.alt = archivo.name;
+                        contenedor.appendChild(img);
+                        imagenes.push(img); // Agregamos la foto a nuestra lista
+                    }
+                });
+
+                // Si encontramos fotos, iniciamos el carrusel
+                if (imagenes.length > 0) {
+                    mensaje.style.display = 'none'; // Ocultamos el texto de "Cargando..."
+                    imagenes[0].classList.add('activa'); // Mostramos la primera foto
+
+                    // Cambiamos la foto cada 4 segundos (4000 milisegundos)
+                    setInterval(() => {
+                        // 1. Ocultamos la foto actual
+                        imagenes[indiceActual].classList.remove('activa');
+                        
+                        // 2. Calculamos cuál es la siguiente foto
+                        indiceActual = (indiceActual + 1) % imagenes.length;
+                        
+                        // 3. Mostramos la nueva foto
+                        imagenes[indiceActual].classList.add('activa');
+                    }, 4000);
+                } else {
+                    mensaje.innerText = "No se encontraron fotos en la carpeta.";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mensaje.innerText = 'Hubo un error al cargar los recuerdos.';
+            });
+    </script>
+</body>
+</html>
