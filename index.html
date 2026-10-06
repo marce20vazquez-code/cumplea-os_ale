@@ -6,7 +6,7 @@
     <title>Cumpleaños Ale</title>
     <style>
         body {
-            background: linear-gradient(to bottom, #d4ebd0 0%, #4caf50 40%, #1b5e20 100%);
+            background: linear-gradient(to bottom, #1b3b1e 0%, #2e7d32 50%, #0d2818 100%);
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -16,17 +16,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden;
+            position: relative;
         }
 
-        /* --- PANTALLA DE BIENVENIDA (Para activar audio al primer toque) --- */
+        /* --- CANVAS PARA CONFETI --- */
+        #canvas-confeti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* --- PANTALLA DE BIENVENIDA --- */
         #pantalla-bienvenida {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 45, 18, 0.96);
+            background: rgba(10, 30, 12, 0.96);
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -40,15 +52,15 @@
         .btn-sorpresa {
             background: linear-gradient(135deg, #ffeb3b, #f57c00);
             color: #1b5e20;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-            padding: 18px 36px;
+            padding: 18px 40px;
             border: none;
             border-radius: 50px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(255, 235, 59, 0.4);
             animation: latido 1.5s infinite;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 25px;
         }
 
         @keyframes latido {
@@ -57,12 +69,12 @@
             100% { transform: scale(1); }
         }
 
-        /* --- TÍTULO ANIMADO EN 3D --- */
+        /* --- TÍTULO 3D ANIMADO --- */
         .titulo-3d {
             font-size: 2.8rem;
             font-weight: 900;
             color: #ffffff;
-            margin: 15px 0;
+            margin: 15px 0 5px 0;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 
@@ -79,57 +91,58 @@
                 0 10px 10px rgba(0,0,0,.2),
                 0 20px 20px rgba(0,0,0,.15);
             animation: flotar3D 3s ease-in-out infinite alternate;
-            transform-style: preserve-3d;
+            z-index: 10;
         }
 
         @keyframes flotar3D {
-            0% { transform: perspective(500px) rotateX(10deg) rotateY(-8deg) translateY(0px); }
-            100% { transform: perspective(500px) rotateX(-10deg) rotateY(8deg) translateY(-12px); }
+            0% { transform: perspective(500px) rotateX(10deg) rotateY(-6deg) translateY(0px); }
+            100% { transform: perspective(500px) rotateX(-10deg) rotateY(6deg) translateY(-10px); }
         }
 
-        /* --- BARRA DE CARGA --- */
+        /* --- BARRA DE CARGA DISCRETA --- */
         #contenedor-carga {
-            width: 80%;
-            max-width: 350px;
-            background-color: rgba(255, 255, 255, 0.25);
+            width: 75%;
+            max-width: 320px;
+            background-color: rgba(255, 255, 255, 0.2);
             border-radius: 20px;
-            padding: 6px;
+            padding: 4px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            margin: 15px 0;
+            margin: 10px 0 20px 0;
+            z-index: 10;
         }
 
         #barra-carga {
             width: 0%;
-            height: 18px;
+            height: 14px;
             background: linear-gradient(90deg, #ffeb3b, #4caf50);
             border-radius: 15px;
             transition: width 0.3s ease;
         }
 
         #texto-carga {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
-            margin-top: 6px;
+            margin-top: 4px;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* --- CARRUSEL Y FOTOS --- */
+        /* --- CARRUSEL DE FOTOS LIMPIO --- */
         #carrusel {
             position: relative;
             width: 100%;
             max-width: 400px;
             height: 480px;
-            margin-top: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 10;
         }
 
         img.foto-carrusel {
             position: absolute;
             border: 6px solid white;
-            border-radius: 15px;
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
+            border-radius: 18px;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.7);
             max-width: 100%;
             max-height: 100%;
             opacity: 0;
@@ -138,47 +151,56 @@
 
         img.foto-carrusel.activa {
             opacity: 1;
-            z-index: 1;
         }
 
-        #mensaje-espera {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px dashed rgba(255, 255, 255, 0.7);
-            font-size: 16px;
-            line-height: 1.5;
-            max-width: 320px;
+        /* --- ANIMACIÓN DE GLOBOS FLOTANTES --- */
+        .globo-flotante {
+            position: fixed;
+            bottom: -60px;
+            font-size: 2.8rem;
+            user-select: none;
+            pointer-events: none;
+            z-index: 6;
+            animation: subirGlobo 7s linear forwards;
+        }
+
+        @keyframes subirGlobo {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-110vh) rotate(360deg);
+                opacity: 0.2;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA INICIAL PARA ABRIR LA SORPRESA -->
+    <!-- CANVAS PARA EL CONFETI -->
+    <canvas id="canvas-confeti"></canvas>
+
+    <!-- PANTALLA INICIAL -->
     <div id="pantalla-bienvenida">
-        <h1 style="font-size: 2.2rem; color: #ffeb3b; text-shadow: 2px 2px 5px rgba(0,0,0,0.7);">🎉 Tienes una sorpresa 🎉</h1>
-        <p style="font-size: 1.1rem;">Toca la pantalla para comenzar</p>
+        <h1 style="font-size: 2.4rem; color: #ffeb3b; text-shadow: 2px 2px 8px rgba(0,0,0,0.8);">🎉 Tienes una sorpresa 🎉</h1>
+        <p style="font-size: 1.2rem; color: #ffffff;">Toca aquí para comenzar</p>
         <button class="btn-sorpresa">🎁 Abrir Sorpresa</button>
     </div>
 
-    <!-- TÍTULO ANIMADO EN 3D -->
+    <!-- TÍTULO 3D -->
     <h1 class="titulo-3d">¡Feliz Cumpleaños Ale! 🌲✨</h1>
 
-    <!-- BARRA DE CARGA DE FOTOS -->
+    <!-- BARRA DE CARGA -->
     <div id="contenedor-carga">
         <div id="barra-carga"></div>
-        <div id="texto-carga">Cargando la magia... 0%</div>
+        <div id="texto-carga">Cargando recuerdos... 0%</div>
     </div>
 
-    <!-- CARRUSEL Y MENSAJE DE ESPERA -->
-    <div id="carrusel">
-        <div id="mensaje-espera">
-            🎶 Escuchando "Las Mañanitas"...<br><br>
-            <strong>Las fotos aparecerán automáticamente al terminar la canción.</strong>
-        </div>
-    </div>
+    <!-- CARRUSEL LIMPIO -->
+    <div id="carrusel"></div>
 
-    <!-- REPRODUCTOR DE AUDIO -->
+    <!-- AUDIO -->
     <audio id="reproductor"></audio>
 
     <script>
@@ -190,25 +212,23 @@
         const barraCarga = document.getElementById('barra-carga');
         const textoCarga = document.getElementById('texto-carga');
         const contenedorCarrusel = document.getElementById('carrusel');
-        const mensajeEspera = document.getElementById('mensaje-espera');
 
         let imagenesPrecargadas = [];
         let cancionInicial = null;
         let cancionesAleatorias = [];
         let primeraCancionSonada = false;
         let indiceFotoActual = 0;
-        let fotosCargadasCompletas = false;
+        let intervaloGlobos = null;
 
         const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
 
-        // 1. CARGAR INFORMACIÓN DE MÚSICA Y FOTOS
+        // 1. CARGA DE MÚSICA Y PRECARGA DE FOTOS
         Promise.all([
             fetch(urlFotos).then(r => r.json()),
             fetch(urlMusica).then(r => r.json())
         ]).then(([fotos, musica]) => {
             
-            // Clasificar la música
             musica.forEach(archivo => {
                 if (archivo.type === 'file' && archivo.name.match(/\.(mp3|wav|ogg)$/i)) {
                     const nombre = archivo.name.toLowerCase();
@@ -220,14 +240,12 @@
                 }
             });
 
-            // Pre-cargar fotos sin lag
             const fotosArchivos = fotos.filter(f => f.type === 'file' && f.name.match(/\.(jpg|jpeg|png|gif)$/i));
             let fotosCargadas = 0;
             const totalFotos = fotosArchivos.length;
 
             if (totalFotos === 0) {
-                textoCarga.innerText = "No se encontraron fotos.";
-                fotosCargadasCompletas = true;
+                textoCarga.innerText = "Listo";
                 return;
             }
 
@@ -246,29 +264,24 @@
                     imagenesPrecargadas.push(img);
 
                     if (fotosCargadas === totalFotos) {
-                        textoCarga.innerText = "¡Fotos listas sin lag! 🚀";
-                        fotosCargadasCompletas = true;
+                        textoCarga.innerText = "¡Fotos listas! ✨";
                     }
                 };
 
                 img.onerror = () => {
                     fotosCargadas++;
-                    if (fotosCargadas === totalFotos) fotosCargadasCompletas = true;
                 };
             });
 
-        }).catch(err => {
-            console.error('Error al cargar datos:', err);
-            textoCarga.innerText = "Error cargando archivos.";
+        }).catch(err => console.error('Error al cargar datos:', err));
+
+        // 2. INICIAR SORPRESA (MÚSICA + FIESTA)
+        pantallaBienvenida.addEventListener('click', () => {
+            pantallaBienvenida.style.display = 'none';
+            reproducirSiguiente();
+            iniciarAnimacionConfeti();
+            iniciarGlobosFlotantes();
         });
-
-        // 2. INICIAR MÚSICA DE INMEDIATO AL TOCAR LA PANTALLA
-        function iniciarSorpresa() {
-            pantallaBienvenida.style.display = 'none'; // Ocultar pantalla de bienvenida
-            reproducirSiguiente(); // Iniciar sonido de inmediato
-        }
-
-        pantallaBienvenida.addEventListener('click', iniciarSorpresa);
 
         function reproducirSiguiente() {
             if (!primeraCancionSonada && cancionInicial) {
@@ -280,10 +293,10 @@
                 reproductor.src = cancionInicial;
             }
 
-            reproductor.play().catch(e => console.log('Error reproduciendo:', e));
+            reproductor.play().catch(e => console.log(e));
         }
 
-        // Al terminar Las Mañanitas -> Activar carrusel de fotos
+        // AL TERMINAR LAS MAÑANITAS -> MOSTRAR FOTOS AUTOMÁTICAMENTE
         reproductor.addEventListener('ended', () => {
             if (!primeraCancionSonada) {
                 primeraCancionSonada = true;
@@ -292,11 +305,10 @@
             reproducirSiguiente();
         });
 
-        // 3. INICIAR CARRUSEL DE FOTOS
+        // 3. CARRUSEL DE FOTOS
         function iniciarCarruselFotos() {
             if (imagenesPrecargadas.length === 0) return;
 
-            mensajeEspera.style.display = 'none';
             imagenesPrecargadas.forEach(img => contenedorCarrusel.appendChild(img));
             imagenesPrecargadas[0].classList.add('activa');
 
@@ -306,6 +318,82 @@
                 imagenesPrecargadas[indiceFotoActual].classList.add('activa');
             }, 4000);
         }
+
+        // 4. ANIMACIÓN DE GLOBOS Y FIESTA FLOTANTE
+        function iniciarGlobosFlotantes() {
+            const iconos = ['🎈', '🎁', '🎂', '🥳', '🌟', '💖', '🎉'];
+            intervaloGlobos = setInterval(() => {
+                const el = document.createElement('div');
+                el.className = 'globo-flotante';
+                el.innerText = iconos[Math.floor(Math.random() * iconos.length)];
+                el.style.left = Math.random() * 90 + 'vw';
+                el.style.animationDuration = (Math.random() * 3 + 5) + 's';
+                document.body.appendChild(el);
+
+                setTimeout(() => el.remove(), 8000);
+            }, 600);
+        }
+
+        // 5. SISTEMA DE CONFETI EN CANVAS
+        function iniciarAnimacionConfeti() {
+            const canvas = document.getElementById('canvas-confeti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particulas = [];
+            const colores = ['#ffeb3b', '#e91e63', '#00e676', '#00e5ff', '#ff9100', '#ffffff'];
+
+            for (let i = 0; i < 90; i++) {
+                particulas.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 8 + 4,
+                    d: Math.random() * 90,
+                    color: colores[Math.floor(Math.random() * colores.length)],
+                    tilt: Math.floor(Math.random() * 10) - 10,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+                    tiltAngle: 0
+                });
+            }
+
+            function dibujar() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particulas.forEach((p) => {
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                });
+                actualizar();
+                requestAnimationFrame(dibujar);
+            }
+
+            function actualizar() {
+                particulas.forEach((p) => {
+                    p.tiltAngle += p.tiltAngleIncremental;
+                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                    p.x += Math.sin(0.5);
+                    p.tilt = Math.sin(p.tiltAngle) * 15;
+
+                    if (p.y > canvas.height) {
+                        p.x = Math.random() * canvas.width;
+                        p.y = -20;
+                        p.tilt = Math.floor(Math.random() * 10) - 10;
+                    }
+                });
+            }
+
+            dibujar();
+        }
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('canvas-confeti');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
 </body>
 </html>
