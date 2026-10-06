@@ -16,25 +16,43 @@
             text-align: center;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
             
-            /* Centramos todo en la pantalla */
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        /* Contenedor principal donde pasarán las fotos */
+        /* Botón para iniciar/pausar música */
+        .btn-musica {
+            background-color: #2e7d32;
+            color: white;
+            border: 2px solid white;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.4);
+            margin-bottom: 15px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-musica:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+
+        /* Contenedor del carrusel */
         #carrusel {
             position: relative;
             width: 100%;
-            max-width: 400px; /* Ancho máximo de la foto */
-            height: 500px; /* Alto fijo para que la página no brinque */
-            margin-top: 30px;
+            max-width: 400px;
+            height: 500px;
+            margin-top: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Estilo general de las fotos (ocultas por defecto) */
         img {
             position: absolute;
             border: 5px solid white;
@@ -42,23 +60,29 @@
             box-shadow: 0px 4px 8px rgba(0,0,0,0.5);
             max-width: 100%;
             max-height: 100%;
-            opacity: 0; /* Las fotos inician transparentes */
-            transition: opacity 1s ease-in-out; /* Efecto suave de transición de 1 segundo */
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
 
-        /* Clase especial para la foto que se está mostrando en el momento */
         img.activa {
-            opacity: 1; /* Hace la foto visible */
-            z-index: 1; /* La pone por encima de las demás */
+            opacity: 1;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
 
     <h1>¡Feliz Cumpleaños Ale! 🌲✨</h1>
+    
+    <!-- Botón de música (requerido porque los navegadores bloquean el sonido automático) -->
+    <button id="btnMusica" class="btn-musica">🎵 Activar Música</button>
+
     <p>Nuestros recuerdos en este bosque mágico:</p>
     
-    <!-- Aquí aparecerán las fotos una por una -->
+    <!-- Elemento reproductor de audio oculto -->
+    <audio id="reproductor"></audio>
+
+    <!-- Carrusel de fotos -->
     <div id="carrusel">
         <p id="mensaje">Cargando la magia...</p>
     </div>
@@ -66,41 +90,34 @@
     <script>
         const usuario = 'marce20vazquez-code';
         const repositorio = 'cumplea-os_ale';
-        const url = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         
+        // --- 1. LÓGICA DEL CARRUSEL DE FOTOS ---
+        const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         const contenedor = document.getElementById('carrusel');
         const mensaje = document.getElementById('mensaje');
         let indiceActual = 0;
-        let imagenes = []; // Aquí guardaremos todas las fotos encontradas
+        let imagenes = [];
 
-        fetch(url)
+        fetch(urlFotos)
             .then(respuesta => respuesta.json())
             .then(datos => {
-                // Buscamos todas las imágenes de la carpeta
                 datos.forEach(archivo => {
                     if (archivo.type === 'file' && archivo.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
                         const img = document.createElement('img');
                         img.src = `fotos/${archivo.name}`; 
                         img.alt = archivo.name;
                         contenedor.appendChild(img);
-                        imagenes.push(img); // Agregamos la foto a nuestra lista
+                        imagenes.push(img);
                     }
                 });
 
-                // Si encontramos fotos, iniciamos el carrusel
                 if (imagenes.length > 0) {
-                    mensaje.style.display = 'none'; // Ocultamos el texto de "Cargando..."
-                    imagenes[0].classList.add('activa'); // Mostramos la primera foto
+                    mensaje.style.display = 'none';
+                    imagenes[0].classList.add('activa');
 
-                    // Cambiamos la foto cada 4 segundos (4000 milisegundos)
                     setInterval(() => {
-                        // 1. Ocultamos la foto actual
                         imagenes[indiceActual].classList.remove('activa');
-                        
-                        // 2. Calculamos cuál es la siguiente foto
                         indiceActual = (indiceActual + 1) % imagenes.length;
-                        
-                        // 3. Mostramos la nueva foto
                         imagenes[indiceActual].classList.add('activa');
                     }, 4000);
                 } else {
@@ -108,9 +125,81 @@
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error fotos:', error);
                 mensaje.innerText = 'Hubo un error al cargar los recuerdos.';
             });
+
+        // --- 2. LÓGICA DE REPRODUCCIÓN DE MÚSICA ---
+        const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
+        const reproductor = document.getElementById('reproductor');
+        const btnMusica = document.getElementById('btnMusica');
+
+        let cancionInicial = null;
+        let cancionesAleatorias = [];
+        let primeraCancionSonada = false;
+        let reproduciendo = false;
+
+        // Cargar lista de canciones desde la carpeta 'musica'
+        fetch(urlMusica)
+            .then(respuesta => respuesta.json())
+            .then(archivos => {
+                archivos.forEach(archivo => {
+                    if (archivo.type === 'file' && archivo.name.match(/\.(mp3|wav|ogg)$/i)) {
+                        const nombreMinusculas = archivo.name.toLowerCase();
+                        // Identifica la canción inicial de Las Mañanitas
+                        if (nombreMinusculas.includes('mananita') || nombreMinusculas.includes('mañanita')) {
+                            cancionInicial = `musica/${archivo.name}`;
+                        } else {
+                            cancionesAleatorias.push(`musica/${archivo.name}`);
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error('Error al cargar música:', err));
+
+        // Función para reproducir las canciones
+        function reproducirSiguiente() {
+            if (!primeraCancionSonada && cancionInicial) {
+                // Primera vez: Suena Las Mañanitas
+                reproductor.src = cancionInicial;
+                primeraCancionSonada = true;
+            } else if (cancionesAleatorias.length > 0) {
+                // Siguientes veces: Selección aleatoria
+                const indiceAleatorio = Math.floor(Math.random() * cancionesAleatorias.length);
+                reproductor.src = cancionesAleatorias[indiceAleatorio];
+            } else if (cancionInicial) {
+                reproductor.src = cancionInicial;
+            }
+
+            reproductor.play().then(() => {
+                reproduciendo = true;
+                btnMusica.innerText = '⏸️ Pausar Música';
+            }).catch(e => {
+                console.log('Navegador bloqueó el auto-play:', e);
+            });
+        }
+
+        // Cuando la canción actual termina, pasa a la siguiente
+        reproductor.addEventListener('ended', () => {
+            reproducirSiguiente();
+        });
+
+        // Evento del botón de música
+        btnMusica.addEventListener('click', () => {
+            if (reproduciendo) {
+                reproductor.pause();
+                reproduciendo = false;
+                btnMusica.innerText = '🎵 Activar Música';
+            } else {
+                if (!reproductor.src) {
+                    reproducirSiguiente();
+                } else {
+                    reproductor.play();
+                    reproduciendo = true;
+                    btnMusica.innerText = '⏸️ Pausar Música';
+                }
+            }
+        });
     </script>
 </body>
 </html>
