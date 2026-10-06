@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cumpleaños Ale</title>
     <style>
-        /* Fondo de bosque mágico */
+        /* Fondo del bosque mágico */
         body {
             background: linear-gradient(to bottom, #d4ebd0 0%, #4caf50 40%, #1b5e20 100%);
             min-height: 100vh;
@@ -14,26 +14,85 @@
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
 
-        /* Botón para iniciar/pausar música */
+        /* --- ANIMACIÓN 3D PARA EL TÍTULO --- */
+        .titulo-3d {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 1px 0 #ccc,
+                0 2px 0 #c9c9c9,
+                0 3px 0 #bbb,
+                0 4px 0 #b9b9b9,
+                0 5px 0 #aaa,
+                0 6px 1px rgba(0,0,0,.1),
+                0 0 5px rgba(0,0,0,.1),
+                0 1px 3px rgba(0,0,0,.3),
+                0 3px 5px rgba(0,0,0,.2),
+                0 5px 10px rgba(0,0,0,.25),
+                0 10px 10px rgba(0,0,0,.2),
+                0 20px 20px rgba(0,0,0,.15);
+            animation: flotar3D 3s ease-in-out infinite alternate;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes flotar3D {
+            0% {
+                transform: perspective(500px) rotateX(10deg) rotateY(-8deg) translateY(0px);
+            }
+            100% {
+                transform: perspective(500px) rotateX(-10deg) rotateY(8deg) translateY(-12px);
+            }
+        }
+
+        /* --- BARRA DE CARGA --- */
+        #contenedor-carga {
+            width: 80%;
+            max-width: 350px;
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 6px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            margin: 15px 0;
+        }
+
+        #barra-carga {
+            width: 0%;
+            height: 18px;
+            background: linear-gradient(90deg, #ffeb3b, #4caf50);
+            border-radius: 15px;
+            transition: width 0.3s ease;
+        }
+
+        #texto-carga {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 6px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* BOTÓN DE MÚSICA */
         .btn-musica {
             background-color: #2e7d32;
             color: white;
             border: 2px solid white;
-            padding: 12px 24px;
-            font-size: 16px;
+            padding: 12px 28px;
+            font-size: 18px;
             font-weight: bold;
             border-radius: 25px;
             cursor: pointer;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.4);
-            margin-bottom: 15px;
-            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
+            margin: 15px 0;
+            transition: all 0.3s ease;
         }
 
         .btn-musica:hover {
@@ -41,132 +100,175 @@
             transform: scale(1.05);
         }
 
-        /* Contenedor del carrusel */
+        .btn-deshabilitado {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* --- CARRUSEL Y FOTOS --- */
         #carrusel {
             position: relative;
             width: 100%;
             max-width: 400px;
-            height: 500px;
+            height: 480px;
             margin-top: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        img {
+        /* Estilo para las fotos */
+        img.foto-carrusel {
             position: absolute;
-            border: 5px solid white;
+            border: 6px solid white;
             border-radius: 15px;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.5);
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.6);
             max-width: 100%;
             max-height: 100%;
             opacity: 0;
-            transition: opacity 1s ease-in-out;
+            transition: opacity 1.2s ease-in-out;
         }
 
-        img.activa {
+        img.foto-carrusel.activa {
             opacity: 1;
             z-index: 1;
+        }
+
+        /* Mensaje previo al carrusel */
+        #mensaje-espera {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            line-height: 1.5;
+            max-width: 320px;
         }
     </style>
 </head>
 <body>
 
-    <h1>¡Feliz Cumpleaños Ale! 🌲✨</h1>
-    
-    <!-- Botón de música (requerido porque los navegadores bloquean el sonido automático) -->
-    <button id="btnMusica" class="btn-musica">🎵 Activar Música</button>
+    <!-- TÍTULO ANIMADO EN 3D -->
+    <h1 class="titulo-3d">¡Feliz Cumpleaños Ale! 🌲✨</h1>
 
-    <p>Nuestros recuerdos en este bosque mágico:</p>
-    
-    <!-- Elemento reproductor de audio oculto -->
+    <!-- BARRA DE CARGA -->
+    <div id="contenedor-carga">
+        <div id="barra-carga"></div>
+        <div id="texto-carga">Cargando la magia... 0%</div>
+    </div>
+
+    <!-- BOTÓN DE MÚSICA -->
+    <button id="btnMusica" class="btn-musica btn-deshabilitado" disabled>⏳ Carga completa requerida</button>
+
+    <!-- MENSAJE DE ESPERA / CARRUSEL -->
+    <div id="carrusel">
+        <div id="mensaje-espera">
+            🎶 Presiona "Activar Música" para comenzar.<br><br>
+            <strong>Las fotos aparecerán automáticamente al terminar "Las Mañanitas".</strong>
+        </div>
+    </div>
+
+    <!-- REPRODUCTOR OCULTO -->
     <audio id="reproductor"></audio>
 
-    <!-- Carrusel de fotos -->
-    <div id="carrusel">
-        <p id="mensaje">Cargando la magia...</p>
-    </div>
-    
     <script>
         const usuario = 'marce20vazquez-code';
         const repositorio = 'cumplea-os_ale';
-        
-        // --- 1. LÓGICA DEL CARRUSEL DE FOTOS ---
-        const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
-        const contenedor = document.getElementById('carrusel');
-        const mensaje = document.getElementById('mensaje');
-        let indiceActual = 0;
-        let imagenes = [];
 
-        fetch(urlFotos)
-            .then(respuesta => respuesta.json())
-            .then(datos => {
-                datos.forEach(archivo => {
-                    if (archivo.type === 'file' && archivo.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                        const img = document.createElement('img');
-                        img.src = `fotos/${archivo.name}`; 
-                        img.alt = archivo.name;
-                        contenedor.appendChild(img);
-                        imagenes.push(img);
-                    }
-                });
-
-                if (imagenes.length > 0) {
-                    mensaje.style.display = 'none';
-                    imagenes[0].classList.add('activa');
-
-                    setInterval(() => {
-                        imagenes[indiceActual].classList.remove('activa');
-                        indiceActual = (indiceActual + 1) % imagenes.length;
-                        imagenes[indiceActual].classList.add('activa');
-                    }, 4000);
-                } else {
-                    mensaje.innerText = "No se encontraron fotos en la carpeta.";
-                }
-            })
-            .catch(error => {
-                console.error('Error fotos:', error);
-                mensaje.innerText = 'Hubo un error al cargar los recuerdos.';
-            });
-
-        // --- 2. LÓGICA DE REPRODUCCIÓN DE MÚSICA ---
-        const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
         const reproductor = document.getElementById('reproductor');
         const btnMusica = document.getElementById('btnMusica');
+        const barraCarga = document.getElementById('barra-carga');
+        const textoCarga = document.getElementById('texto-carga');
+        const contenedorCarrusel = document.getElementById('carrusel');
+        const mensajeEspera = document.getElementById('mensaje-espera');
 
+        let imagenesPrecargadas = [];
         let cancionInicial = null;
         let cancionesAleatorias = [];
         let primeraCancionSonada = false;
         let reproduciendo = false;
+        let indiceFotoActual = 0;
+        let intervaloCarrusel = null;
 
-        // Cargar lista de canciones desde la carpeta 'musica'
-        fetch(urlMusica)
-            .then(respuesta => respuesta.json())
-            .then(archivos => {
-                archivos.forEach(archivo => {
-                    if (archivo.type === 'file' && archivo.name.match(/\.(mp3|wav|ogg)$/i)) {
-                        const nombreMinusculas = archivo.name.toLowerCase();
-                        // Identifica la canción inicial de Las Mañanitas
-                        if (nombreMinusculas.includes('mananita') || nombreMinusculas.includes('mañanita')) {
-                            cancionInicial = `musica/${archivo.name}`;
-                        } else {
-                            cancionesAleatorias.push(`musica/${archivo.name}`);
-                        }
+        // 1. CARGA Y PRE-CARGA DE IMÁGENES SIN LAG
+        const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
+        const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
+
+        Promise.all([
+            fetch(urlFotos).then(r => r.json()),
+            fetch(urlMusica).then(r => r.json())
+        ]).then(([fotos, musica]) => {
+            
+            // Procesar lista de música
+            musica.forEach(archivo => {
+                if (archivo.type === 'file' && archivo.name.match(/\.(mp3|wav|ogg)$/i)) {
+                    const nombre = archivo.name.toLowerCase();
+                    if (nombre.includes('mananita') || nombre.includes('mañanita')) {
+                        cancionInicial = `musica/${archivo.name}`;
+                    } else {
+                        cancionesAleatorias.push(`musica/${archivo.name}`);
                     }
-                });
-            })
-            .catch(err => console.error('Error al cargar música:', err));
+                }
+            });
 
-        // Función para reproducir las canciones
+            // Filtrar archivos de fotos
+            const fotosArchivos = fotos.filter(f => f.type === 'file' && f.name.match(/\.(jpg|jpeg|png|gif)$/i));
+            let fotosCargadas = 0;
+            const totalFotos = fotosArchivos.length;
+
+            if (totalFotos === 0) {
+                textoCarga.innerText = "No se encontraron fotos.";
+                habilitarBoton();
+                return;
+            }
+
+            // Pre-cargar cada imagen en segundo plano
+            fotosArchivos.forEach(archivo => {
+                const img = new Image();
+                img.src = `fotos/${archivo.name}`;
+                img.className = 'foto-carrusel';
+                img.alt = archivo.name;
+
+                img.onload = () => {
+                    fotosCargadas++;
+                    const porcentaje = Math.round((fotosCargadas / totalFotos) * 100);
+                    barraCarga.style.width = porcentaje + '%';
+                    textoCarga.innerText = `Cargando fotos... ${porcentaje}%`;
+
+                    imagenesPrecargadas.push(img);
+
+                    if (fotosCargadas === totalFotos) {
+                        textoCarga.innerText = "¡Todo cargado sin lag! 🚀";
+                        habilitarBoton();
+                    }
+                };
+
+                img.onerror = () => {
+                    fotosCargadas++;
+                    if (fotosCargadas === totalFotos) habilitarBoton();
+                };
+            });
+
+        }).catch(err => {
+            console.error('Error al cargar elementos:', err);
+            textoCarga.innerText = "Error cargando archivos.";
+        });
+
+        function habilitarBoton() {
+            btnMusica.disabled = false;
+            btnMusica.classList.remove('btn-deshabilitado');
+            btnMusica.innerText = '🎵 Activar Música';
+        }
+
+        // 2. LÓGICA DE MÚSICA Y SINCRONIZACIÓN
         function reproducirSiguiente() {
             if (!primeraCancionSonada && cancionInicial) {
-                // Primera vez: Suena Las Mañanitas
+                // Primero suena Las Mañanitas
                 reproductor.src = cancionInicial;
-                primeraCancionSonada = true;
             } else if (cancionesAleatorias.length > 0) {
-                // Siguientes veces: Selección aleatoria
-                const indiceAleatorio = Math.floor(Math.random() * cancionesAleatorias.length);
-                reproductor.src = cancionesAleatorias[indiceAleatorio];
+                // Después canciones aleatorias
+                const idx = Math.floor(Math.random() * cancionesAleatorias.length);
+                reproductor.src = cancionesAleatorias[idx];
             } else if (cancionInicial) {
                 reproductor.src = cancionInicial;
             }
@@ -174,17 +276,41 @@
             reproductor.play().then(() => {
                 reproduciendo = true;
                 btnMusica.innerText = '⏸️ Pausar Música';
-            }).catch(e => {
-                console.log('Navegador bloqueó el auto-play:', e);
-            });
+            }).catch(e => console.log('Autoplay bloqueado:', e));
         }
 
-        // Cuando la canción actual termina, pasa a la siguiente
+        // Cuando la canción actual termina
         reproductor.addEventListener('ended', () => {
+            if (!primeraCancionSonada) {
+                // AQUÍ TERMINARON LAS MAÑANITAS -> SE ACTIVAN LAS FOTOS
+                primeraCancionSonada = true;
+                iniciarCarruselFotos();
+            }
             reproducirSiguiente();
         });
 
-        // Evento del botón de música
+        // 3. INICIAR CARRUSEL DE FOTOS
+        function iniciarCarruselFotos() {
+            if (imagenesPrecargadas.length === 0) return;
+
+            // Ocultar mensaje de espera
+            mensajeEspera.style.display = 'none';
+
+            // Agregar imágenes al carrusel
+            imagenesPrecargadas.forEach(img => contenedorCarrusel.appendChild(img));
+
+            // Mostrar la primera foto
+            imagenesPrecargadas[0].classList.add('activa');
+
+            // Rotar fotos cada 4 segundos
+            intervaloCarrusel = setInterval(() => {
+                imagenesPrecargadas[indiceFotoActual].classList.remove('activa');
+                indiceFotoActual = (indiceFotoActual + 1) % imagenesPrecargadas.length;
+                imagenesPrecargadas[indiceFotoActual].classList.add('activa');
+            }, 4000);
+        }
+
+        // CONTROL DEL BOTÓN
         btnMusica.addEventListener('click', () => {
             if (reproduciendo) {
                 reproductor.pause();
