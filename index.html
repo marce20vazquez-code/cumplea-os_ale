@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cumpleaños Ale</title>
     <style>
-        /* Fondo del bosque mágico */
         body {
             background: linear-gradient(to bottom, #d4ebd0 0%, #4caf50 40%, #1b5e20 100%);
             min-height: 100vh;
@@ -20,12 +19,50 @@
             overflow-x: hidden;
         }
 
-        /* --- ANIMACIÓN 3D PARA EL TÍTULO --- */
+        /* --- PANTALLA DE BIENVENIDA (Para activar audio al primer toque) --- */
+        #pantalla-bienvenida {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 45, 18, 0.96);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .btn-sorpresa {
+            background: linear-gradient(135deg, #ffeb3b, #f57c00);
+            color: #1b5e20;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 18px 36px;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: latido 1.5s infinite;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        @keyframes latido {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- TÍTULO ANIMADO EN 3D --- */
         .titulo-3d {
             font-size: 2.8rem;
             font-weight: 900;
             color: #ffffff;
-            margin: 20px 0;
+            margin: 15px 0;
             text-transform: uppercase;
             letter-spacing: 2px;
             text-shadow: 
@@ -46,12 +83,8 @@
         }
 
         @keyframes flotar3D {
-            0% {
-                transform: perspective(500px) rotateX(10deg) rotateY(-8deg) translateY(0px);
-            }
-            100% {
-                transform: perspective(500px) rotateX(-10deg) rotateY(8deg) translateY(-12px);
-            }
+            0% { transform: perspective(500px) rotateX(10deg) rotateY(-8deg) translateY(0px); }
+            100% { transform: perspective(500px) rotateX(-10deg) rotateY(8deg) translateY(-12px); }
         }
 
         /* --- BARRA DE CARGA --- */
@@ -80,31 +113,6 @@
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* BOTÓN DE MÚSICA */
-        .btn-musica {
-            background-color: #2e7d32;
-            color: white;
-            border: 2px solid white;
-            padding: 12px 28px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0px 4px 12px rgba(0,0,0,0.4);
-            margin: 15px 0;
-            transition: all 0.3s ease;
-        }
-
-        .btn-musica:hover {
-            background-color: #388e3c;
-            transform: scale(1.05);
-        }
-
-        .btn-deshabilitado {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         /* --- CARRUSEL Y FOTOS --- */
         #carrusel {
             position: relative;
@@ -117,7 +125,6 @@
             align-items: center;
         }
 
-        /* Estilo para las fotos */
         img.foto-carrusel {
             position: absolute;
             border: 6px solid white;
@@ -134,7 +141,6 @@
             z-index: 1;
         }
 
-        /* Mensaje previo al carrusel */
         #mensaje-espera {
             background: rgba(0, 0, 0, 0.4);
             padding: 20px;
@@ -148,35 +154,39 @@
 </head>
 <body>
 
+    <!-- PANTALLA INICIAL PARA ABRIR LA SORPRESA -->
+    <div id="pantalla-bienvenida">
+        <h1 style="font-size: 2.2rem; color: #ffeb3b; text-shadow: 2px 2px 5px rgba(0,0,0,0.7);">🎉 Tienes una sorpresa 🎉</h1>
+        <p style="font-size: 1.1rem;">Toca la pantalla para comenzar</p>
+        <button class="btn-sorpresa">🎁 Abrir Sorpresa</button>
+    </div>
+
     <!-- TÍTULO ANIMADO EN 3D -->
     <h1 class="titulo-3d">¡Feliz Cumpleaños Ale! 🌲✨</h1>
 
-    <!-- BARRA DE CARGA -->
+    <!-- BARRA DE CARGA DE FOTOS -->
     <div id="contenedor-carga">
         <div id="barra-carga"></div>
         <div id="texto-carga">Cargando la magia... 0%</div>
     </div>
 
-    <!-- BOTÓN DE MÚSICA -->
-    <button id="btnMusica" class="btn-musica btn-deshabilitado" disabled>⏳ Carga completa requerida</button>
-
-    <!-- MENSAJE DE ESPERA / CARRUSEL -->
+    <!-- CARRUSEL Y MENSAJE DE ESPERA -->
     <div id="carrusel">
         <div id="mensaje-espera">
-            🎶 Presiona "Activar Música" para comenzar.<br><br>
-            <strong>Las fotos aparecerán automáticamente al terminar "Las Mañanitas".</strong>
+            🎶 Escuchando "Las Mañanitas"...<br><br>
+            <strong>Las fotos aparecerán automáticamente al terminar la canción.</strong>
         </div>
     </div>
 
-    <!-- REPRODUCTOR OCULTO -->
+    <!-- REPRODUCTOR DE AUDIO -->
     <audio id="reproductor"></audio>
 
     <script>
         const usuario = 'marce20vazquez-code';
         const repositorio = 'cumplea-os_ale';
 
+        const pantallaBienvenida = document.getElementById('pantalla-bienvenida');
         const reproductor = document.getElementById('reproductor');
-        const btnMusica = document.getElementById('btnMusica');
         const barraCarga = document.getElementById('barra-carga');
         const textoCarga = document.getElementById('texto-carga');
         const contenedorCarrusel = document.getElementById('carrusel');
@@ -186,20 +196,19 @@
         let cancionInicial = null;
         let cancionesAleatorias = [];
         let primeraCancionSonada = false;
-        let reproduciendo = false;
         let indiceFotoActual = 0;
-        let intervaloCarrusel = null;
+        let fotosCargadasCompletas = false;
 
-        // 1. CARGA Y PRE-CARGA DE IMÁGENES SIN LAG
         const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
 
+        // 1. CARGAR INFORMACIÓN DE MÚSICA Y FOTOS
         Promise.all([
             fetch(urlFotos).then(r => r.json()),
             fetch(urlMusica).then(r => r.json())
         ]).then(([fotos, musica]) => {
             
-            // Procesar lista de música
+            // Clasificar la música
             musica.forEach(archivo => {
                 if (archivo.type === 'file' && archivo.name.match(/\.(mp3|wav|ogg)$/i)) {
                     const nombre = archivo.name.toLowerCase();
@@ -211,18 +220,17 @@
                 }
             });
 
-            // Filtrar archivos de fotos
+            // Pre-cargar fotos sin lag
             const fotosArchivos = fotos.filter(f => f.type === 'file' && f.name.match(/\.(jpg|jpeg|png|gif)$/i));
             let fotosCargadas = 0;
             const totalFotos = fotosArchivos.length;
 
             if (totalFotos === 0) {
                 textoCarga.innerText = "No se encontraron fotos.";
-                habilitarBoton();
+                fotosCargadasCompletas = true;
                 return;
             }
 
-            // Pre-cargar cada imagen en segundo plano
             fotosArchivos.forEach(archivo => {
                 const img = new Image();
                 img.src = `fotos/${archivo.name}`;
@@ -238,51 +246,46 @@
                     imagenesPrecargadas.push(img);
 
                     if (fotosCargadas === totalFotos) {
-                        textoCarga.innerText = "¡Todo cargado sin lag! 🚀";
-                        habilitarBoton();
+                        textoCarga.innerText = "¡Fotos listas sin lag! 🚀";
+                        fotosCargadasCompletas = true;
                     }
                 };
 
                 img.onerror = () => {
                     fotosCargadas++;
-                    if (fotosCargadas === totalFotos) habilitarBoton();
+                    if (fotosCargadas === totalFotos) fotosCargadasCompletas = true;
                 };
             });
 
         }).catch(err => {
-            console.error('Error al cargar elementos:', err);
+            console.error('Error al cargar datos:', err);
             textoCarga.innerText = "Error cargando archivos.";
         });
 
-        function habilitarBoton() {
-            btnMusica.disabled = false;
-            btnMusica.classList.remove('btn-deshabilitado');
-            btnMusica.innerText = '🎵 Activar Música';
+        // 2. INICIAR MÚSICA DE INMEDIATO AL TOCAR LA PANTALLA
+        function iniciarSorpresa() {
+            pantallaBienvenida.style.display = 'none'; // Ocultar pantalla de bienvenida
+            reproducirSiguiente(); // Iniciar sonido de inmediato
         }
 
-        // 2. LÓGICA DE MÚSICA Y SINCRONIZACIÓN
+        pantallaBienvenida.addEventListener('click', iniciarSorpresa);
+
         function reproducirSiguiente() {
             if (!primeraCancionSonada && cancionInicial) {
-                // Primero suena Las Mañanitas
                 reproductor.src = cancionInicial;
             } else if (cancionesAleatorias.length > 0) {
-                // Después canciones aleatorias
                 const idx = Math.floor(Math.random() * cancionesAleatorias.length);
                 reproductor.src = cancionesAleatorias[idx];
             } else if (cancionInicial) {
                 reproductor.src = cancionInicial;
             }
 
-            reproductor.play().then(() => {
-                reproduciendo = true;
-                btnMusica.innerText = '⏸️ Pausar Música';
-            }).catch(e => console.log('Autoplay bloqueado:', e));
+            reproductor.play().catch(e => console.log('Error reproduciendo:', e));
         }
 
-        // Cuando la canción actual termina
+        // Al terminar Las Mañanitas -> Activar carrusel de fotos
         reproductor.addEventListener('ended', () => {
             if (!primeraCancionSonada) {
-                // AQUÍ TERMINARON LAS MAÑANITAS -> SE ACTIVAN LAS FOTOS
                 primeraCancionSonada = true;
                 iniciarCarruselFotos();
             }
@@ -293,39 +296,16 @@
         function iniciarCarruselFotos() {
             if (imagenesPrecargadas.length === 0) return;
 
-            // Ocultar mensaje de espera
             mensajeEspera.style.display = 'none';
-
-            // Agregar imágenes al carrusel
             imagenesPrecargadas.forEach(img => contenedorCarrusel.appendChild(img));
-
-            // Mostrar la primera foto
             imagenesPrecargadas[0].classList.add('activa');
 
-            // Rotar fotos cada 4 segundos
-            intervaloCarrusel = setInterval(() => {
+            setInterval(() => {
                 imagenesPrecargadas[indiceFotoActual].classList.remove('activa');
                 indiceFotoActual = (indiceFotoActual + 1) % imagenesPrecargadas.length;
                 imagenesPrecargadas[indiceFotoActual].classList.add('activa');
             }, 4000);
         }
-
-        // CONTROL DEL BOTÓN
-        btnMusica.addEventListener('click', () => {
-            if (reproduciendo) {
-                reproductor.pause();
-                reproduciendo = false;
-                btnMusica.innerText = '🎵 Activar Música';
-            } else {
-                if (!reproductor.src) {
-                    reproducirSiguiente();
-                } else {
-                    reproductor.play();
-                    reproduciendo = true;
-                    btnMusica.innerText = '⏸️ Pausar Música';
-                }
-            }
-        });
     </script>
 </body>
 </html>
