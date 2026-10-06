@@ -16,12 +16,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
+            user-select: none;
         }
 
-        /* --- CANVAS PARA CONFETI --- */
-        #canvas-confeti {
+        /* --- CANVAS PARA CONFETI, FUEGOS ARTIFICIALES Y NOTAS --- */
+        #canvas-efectos {
             position: fixed;
             top: 0;
             left: 0;
@@ -29,6 +30,44 @@
             height: 100%;
             pointer-events: none;
             z-index: 5;
+        }
+
+        /* --- DISCO DE VINILO GIRATORIO EN LA ESQUINA --- */
+        #disco-vinilo {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 65px;
+            height: 65px;
+            background: radial-gradient(circle, #333 30%, #111 70%, #000 100%);
+            border: 3px solid #ffeb3b;
+            border-radius: 50%;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #disco-vinilo.reproduciendo {
+            opacity: 1;
+            animation: girarDisco 4s linear infinite;
+        }
+
+        #disco-vinilo::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background-color: #e91e63;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        @keyframes girarDisco {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* --- PANTALLA DE BIENVENIDA --- */
@@ -69,34 +108,27 @@
             100% { transform: scale(1); }
         }
 
-        /* --- TÍTULO 3D ANIMADO --- */
+        /* --- TÍTULO 3D MULTICOLOR --- */
         .titulo-3d {
-            font-size: 2.8rem;
+            font-size: clamp(2.5rem, 7vw, 4.2rem);
             font-weight: 900;
-            color: #ffffff;
-            margin: 15px 0 5px 0;
+            margin: 10px 0 5px 0;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 
-                0 1px 0 #ccc,
-                0 2px 0 #c9c9c9,
-                0 3px 0 #bbb,
-                0 4px 0 #b9b9b9,
-                0 5px 0 #aaa,
-                0 6px 1px rgba(0,0,0,.1),
-                0 0 5px rgba(0,0,0,.1),
-                0 1px 3px rgba(0,0,0,.3),
-                0 3px 5px rgba(0,0,0,.2),
-                0 5px 10px rgba(0,0,0,.25),
-                0 10px 10px rgba(0,0,0,.2),
-                0 20px 20px rgba(0,0,0,.15);
-            animation: flotar3D 3s ease-in-out infinite alternate;
+            animation: flotar3D 3s ease-in-out infinite alternate, cambioColor 6s linear infinite;
             z-index: 10;
         }
 
         @keyframes flotar3D {
             0% { transform: perspective(500px) rotateX(10deg) rotateY(-6deg) translateY(0px); }
             100% { transform: perspective(500px) rotateX(-10deg) rotateY(6deg) translateY(-10px); }
+        }
+
+        @keyframes cambioColor {
+            0%, 100% { color: #ffeb3b; text-shadow: 0 2px 0 #f57c00, 0 4px 0 #bf360c, 0 6px 15px rgba(255, 235, 59, 0.7); }
+            25% { color: #ff4081; text-shadow: 0 2px 0 #c2185b, 0 4px 0 #4a148c, 0 6px 15px rgba(255, 64, 129, 0.7); }
+            50% { color: #00e5ff; text-shadow: 0 2px 0 #0097a7, 0 4px 0 #004d40, 0 6px 15px rgba(0, 229, 255, 0.7); }
+            75% { color: #76ff03; text-shadow: 0 2px 0 #388e3c, 0 4px 0 #003300, 0 6px 15px rgba(118, 255, 3, 0.7); }
         }
 
         /* --- BARRA DE CARGA DISCRETA --- */
@@ -107,32 +139,126 @@
             border-radius: 20px;
             padding: 4px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            margin: 10px 0 20px 0;
+            margin: 5px 0 15px 0;
             z-index: 10;
         }
 
         #barra-carga {
             width: 0%;
-            height: 14px;
+            height: 12px;
             background: linear-gradient(90deg, #ffeb3b, #4caf50);
             border-radius: 15px;
             transition: width 0.3s ease;
         }
 
         #texto-carga {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 4px;
+            margin-top: 3px;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
         }
 
-        /* --- CARRUSEL DE FOTOS LIMPIO --- */
+        /* --- ESCENA DEL PASTEL Y REGALO DURANTE MAÑANITAS --- */
+        #escena-mañanitas {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            margin-top: 10px;
+            transition: transform 1s ease, opacity 1s ease;
+        }
+
+        .instruccion-pastel {
+            font-size: 0.95rem;
+            color: #fff;
+            background: rgba(0,0,0,0.4);
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* CONTENEDOR DEL PASTEL */
+        .pastel-container {
+            position: relative;
+            width: 220px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            cursor: pointer;
+        }
+
+        /* VELITAS */
+        .velas-wrapper {
+            display: flex;
+            gap: 15px;
+            position: absolute;
+            top: 10px;
+            z-index: 12;
+        }
+
+        .vela {
+            width: 10px;
+            height: 35px;
+            background: linear-gradient(to bottom, #ff4081, #fff);
+            border-radius: 3px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .llama {
+            width: 12px;
+            height: 18px;
+            background: radial-gradient(ellipse at bottom, #ffeb3b 0%, #ff5722 70%, transparent 100%);
+            border-radius: 50% 50% 35% 35%;
+            position: absolute;
+            top: -18px;
+            left: -1px;
+            animation: parpadeoLlama 0.6s infinite alternate;
+            box-shadow: 0 0 10px #ffeb3b;
+        }
+
+        .vela.apagada .llama {
+            display: none;
+        }
+
+        @keyframes parpadeoLlama {
+            0% { transform: scale(1) rotate(-2deg); }
+            100% { transform: scale(1.15) rotate(2deg); }
+        }
+
+        /* CAPAS DEL PASTEL */
+        .piso-pastel {
+            background: #f8bbd0;
+            border: 3px solid #fff;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .piso-superior { width: 140px; height: 50px; background: #f48fb1; }
+        .piso-inferior { width: 190px; height: 65px; background: #ec407a; }
+
+        /* REGALO GIGANTE */
+        #caja-regalo {
+            font-size: 80px;
+            margin-top: 10px;
+            animation: boteRegalo 2s infinite;
+        }
+
+        @keyframes boteRegalo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* --- CARRUSEL DE FOTOS --- */
         #carrusel {
             position: relative;
             width: 100%;
             max-width: 400px;
             height: 480px;
-            display: flex;
+            display: none; /* Oculto hasta que terminen las mañanitas */
             justify-content: center;
             align-items: center;
             z-index: 10;
@@ -153,7 +279,7 @@
             opacity: 1;
         }
 
-        /* --- ANIMACIÓN DE GLOBOS FLOTANTES --- */
+        /* --- GLOBOS FLOTANTES --- */
         .globo-flotante {
             position: fixed;
             bottom: -60px;
@@ -165,21 +291,18 @@
         }
 
         @keyframes subirGlobo {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-110vh) rotate(360deg);
-                opacity: 0.2;
-            }
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0.2; }
         }
     </style>
 </head>
 <body>
 
-    <!-- CANVAS PARA EL CONFETI -->
-    <canvas id="canvas-confeti"></canvas>
+    <!-- CANVAS DE EFECTOS (CONFETI + FUEGOS ARTIFICIALES) -->
+    <canvas id="canvas-efectos"></canvas>
+
+    <!-- DISCO DE VINILO -->
+    <div id="disco-vinilo"></div>
 
     <!-- PANTALLA INICIAL -->
     <div id="pantalla-bienvenida">
@@ -197,10 +320,27 @@
         <div id="texto-carga">Cargando recuerdos... 0%</div>
     </div>
 
-    <!-- CARRUSEL LIMPIO -->
+    <!-- ESCENA DEL PASTEL Y REGALO (DURANTE LAS MAÑANITAS) -->
+    <div id="escena-mañanitas">
+        <div class="instruccion-pastel">✨ Toca las velas para soplarlas | Toca la pantalla para ver fuegos artificiales ✨</div>
+        
+        <div class="pastel-container" id="pastel">
+            <div class="velas-wrapper">
+                <div class="vela"><div class="llama"></div></div>
+                <div class="vela"><div class="llama"></div></div>
+                <div class="vela"><div class="llama"></div></div>
+            </div>
+            <div class="piso-pastel piso-superior"></div>
+            <div class="piso-pastel piso-inferior"></div>
+        </div>
+
+        <div id="caja-regalo">🎁</div>
+    </div>
+
+    <!-- CARRUSEL DE FOTOS (SE REVELA AL FINALIZAR LAS MAÑANITAS) -->
     <div id="carrusel"></div>
 
-    <!-- AUDIO -->
+    <!-- REPRODUCTOR -->
     <audio id="reproductor"></audio>
 
     <script>
@@ -209,8 +349,10 @@
 
         const pantallaBienvenida = document.getElementById('pantalla-bienvenida');
         const reproductor = document.getElementById('reproductor');
+        const discoVinilo = document.getElementById('disco-vinilo');
         const barraCarga = document.getElementById('barra-carga');
         const textoCarga = document.getElementById('texto-carga');
+        const escenaMañanitas = document.getElementById('escena-mañanitas');
         const contenedorCarrusel = document.getElementById('carrusel');
 
         let imagenesPrecargadas = [];
@@ -218,12 +360,11 @@
         let cancionesAleatorias = [];
         let primeraCancionSonada = false;
         let indiceFotoActual = 0;
-        let intervaloGlobos = null;
 
         const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
 
-        // 1. CARGA DE MÚSICA Y PRECARGA DE FOTOS
+        // 1. CARGA DE ARCHIVOS Y PRE-CARGA DE FOTOS
         Promise.all([
             fetch(urlFotos).then(r => r.json()),
             fetch(urlMusica).then(r => r.json())
@@ -245,7 +386,7 @@
             const totalFotos = fotosArchivos.length;
 
             if (totalFotos === 0) {
-                textoCarga.innerText = "Listo";
+                textoCarga.innerText = "Fotos listas";
                 return;
             }
 
@@ -268,18 +409,17 @@
                     }
                 };
 
-                img.onerror = () => {
-                    fotosCargadas++;
-                };
+                img.onerror = () => { fotosCargadas++; };
             });
 
         }).catch(err => console.error('Error al cargar datos:', err));
 
-        // 2. INICIAR SORPRESA (MÚSICA + FIESTA)
+        // 2. INICIAR SORPRESA
         pantallaBienvenida.addEventListener('click', () => {
             pantallaBienvenida.style.display = 'none';
+            discoVinilo.classList.add('reproduciendo');
             reproducirSiguiente();
-            iniciarAnimacionConfeti();
+            iniciarSistemaCanvas();
             iniciarGlobosFlotantes();
         });
 
@@ -296,13 +436,42 @@
             reproductor.play().catch(e => console.log(e));
         }
 
-        // AL TERMINAR LAS MAÑANITAS -> MOSTRAR FOTOS AUTOMÁTICAMENTE
+        // AL TERMINAR LAS MAÑANITAS -> APAGAR VELAS, ABRIR REGALO Y MOSTRAR FOTOS
         reproductor.addEventListener('ended', () => {
             if (!primeraCancionSonada) {
                 primeraCancionSonada = true;
-                iniciarCarruselFotos();
+                
+                // Apagar velitas si aún siguen encendidas
+                document.querySelectorAll('.vela').forEach(v => v.classList.add('apagada'));
+
+                // Explotar fuegos artificiales de celebración
+                for(let i=0; i<5; i++) {
+                    setTimeout(() => {
+                        crearFuegoArtificial(window.innerWidth/2 + (Math.random()*200 - 100), window.innerHeight/2 + (Math.random()*200 - 100));
+                    }, i * 200);
+                }
+
+                // Transición: Ocultar escena del pastel y revelar carrusel de fotos
+                setTimeout(() => {
+                    escenaMañanitas.style.transform = 'scale(0.8)';
+                    escenaMañanitas.style.opacity = '0';
+                    setTimeout(() => {
+                        escenaMañanitas.style.display = 'none';
+                        contenedorCarrusel.style.display = 'flex';
+                        iniciarCarruselFotos();
+                    }, 800);
+                }, 1000);
             }
             reproducirSiguiente();
+        });
+
+        // SOPLAR VELAS AL HACER CLIC EN EL PASTEL
+        document.querySelectorAll('.vela').forEach(vela => {
+            vela.addEventListener('click', (e) => {
+                e.stopPropagation();
+                vela.classList.add('apagada');
+                crearFuegoArtificial(e.clientX, e.clientY);
+            });
         });
 
         // 3. CARRUSEL DE FOTOS
@@ -319,10 +488,10 @@
             }, 4000);
         }
 
-        // 4. ANIMACIÓN DE GLOBOS Y FIESTA FLOTANTE
+        // 4. GLOBOS FLOTANTES
         function iniciarGlobosFlotantes() {
             const iconos = ['🎈', '🎁', '🎂', '🥳', '🌟', '💖', '🎉'];
-            intervaloGlobos = setInterval(() => {
+            setInterval(() => {
                 const el = document.createElement('div');
                 el.className = 'globo-flotante';
                 el.innerText = iconos[Math.floor(Math.random() * iconos.length)];
@@ -334,22 +503,25 @@
             }, 600);
         }
 
-        // 5. SISTEMA DE CONFETI EN CANVAS
-        function iniciarAnimacionConfeti() {
-            const canvas = document.getElementById('canvas-confeti');
-            const ctx = canvas.getContext('2d');
+        // 5. CANVAS: CONFETI + FUEGOS ARTIFICIALES AL TOCAR + NOTAS MUSICALES
+        const canvas = document.getElementById('canvas-efectos');
+        const ctx = canvas.getContext('2d');
+        let particulasConfeti = [];
+        let particulasFuegos = [];
+        let notasMusicales = [];
+
+        function iniciarSistemaCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            const particulas = [];
+            // Generar Confeti
             const colores = ['#ffeb3b', '#e91e63', '#00e676', '#00e5ff', '#ff9100', '#ffffff'];
-
-            for (let i = 0; i < 90; i++) {
-                particulas.push({
+            for (let i = 0; i < 80; i++) {
+                particulasConfeti.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height - canvas.height,
                     r: Math.random() * 8 + 4,
-                    d: Math.random() * 90,
+                    d: Math.random() * 80,
                     color: colores[Math.floor(Math.random() * colores.length)],
                     tilt: Math.floor(Math.random() * 10) - 10,
                     tiltAngleIncremental: Math.random() * 0.07 + 0.05,
@@ -357,40 +529,109 @@
                 });
             }
 
-            function dibujar() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particulas.forEach((p) => {
-                    ctx.beginPath();
-                    ctx.lineWidth = p.r;
-                    ctx.strokeStyle = p.color;
-                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
-                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
-                    ctx.stroke();
+            // Crear notas desde el vinilo periódicamente
+            setInterval(crearNotaMusical, 1200);
+
+            animarCanvas();
+        }
+
+        // FUEGOS ARTIFICIALES EN CADA TOUCH / CLIC
+        window.addEventListener('pointerdown', (e) => {
+            if (pantallaBienvenida.style.display !== 'none') return;
+            crearFuegoArtificial(e.clientX, e.clientY);
+        });
+
+        function crearFuegoArtificial(x, y) {
+            const colores = ['#ffeb3b', '#ff4081', '#00e5ff', '#76ff03', '#ffffff', '#ff9100'];
+            for (let i = 0; i < 30; i++) {
+                const angulo = Math.random() * Math.PI * 2;
+                const velocidad = Math.random() * 6 + 2;
+                particulasFuegos.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angulo) * velocidad,
+                    vy: Math.sin(angulo) * velocidad,
+                    color: colores[Math.floor(Math.random() * colores.length)],
+                    alpha: 1,
+                    radio: Math.random() * 3 + 2
                 });
-                actualizar();
-                requestAnimationFrame(dibujar);
+            }
+        }
+
+        function crearNotaMusical() {
+            const simbolos = ['🎵', '🎶'];
+            notasMusicales.push({
+                x: window.innerWidth - 50,
+                y: 60,
+                texto: simbolos[Math.floor(Math.random() * simbolos.length)],
+                vx: (Math.random() - 1) * 1.5,
+                vy: -Math.random() * 2 - 1,
+                alpha: 1,
+                tamano: Math.random() * 10 + 18
+            });
+        }
+
+        function animarCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // DIBUJAR CONFETI
+            particulasConfeti.forEach((p) => {
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                ctx.stroke();
+
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                p.tilt = Math.sin(p.tiltAngle) * 15;
+
+                if (p.y > canvas.height) {
+                    p.x = Math.random() * canvas.width;
+                    p.y = -20;
+                }
+            });
+
+            // DIBUJAR FUEGOS ARTIFICIALES
+            for (let i = particulasFuegos.length - 1; i >= 0; i--) {
+                const f = particulasFuegos[i];
+                ctx.save();
+                ctx.globalAlpha = f.alpha;
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, f.radio, 0, Math.PI * 2);
+                ctx.fillStyle = f.color;
+                ctx.fill();
+                ctx.restore();
+
+                f.x += f.vx;
+                f.y += f.vy;
+                f.alpha -= 0.025;
+
+                if (f.alpha <= 0) particulasFuegos.splice(i, 1);
             }
 
-            function actualizar() {
-                particulas.forEach((p) => {
-                    p.tiltAngle += p.tiltAngleIncremental;
-                    p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
-                    p.x += Math.sin(0.5);
-                    p.tilt = Math.sin(p.tiltAngle) * 15;
+            // DIBUJAR NOTAS MUSICALES
+            for (let i = notasMusicales.length - 1; i >= 0; i--) {
+                const n = notasMusicales[i];
+                ctx.save();
+                ctx.globalAlpha = n.alpha;
+                ctx.font = `${n.tamano}px sans-serif`;
+                ctx.fillStyle = '#ffeb3b';
+                ctx.fillText(n.texto, n.x, n.y);
+                ctx.restore();
 
-                    if (p.y > canvas.height) {
-                        p.x = Math.random() * canvas.width;
-                        p.y = -20;
-                        p.tilt = Math.floor(Math.random() * 10) - 10;
-                    }
-                });
+                n.x += n.vx;
+                n.y += n.vy;
+                n.alpha -= 0.012;
+
+                if (n.alpha <= 0) notasMusicales.splice(i, 1);
             }
 
-            dibujar();
+            requestAnimationFrame(animarCanvas);
         }
 
         window.addEventListener('resize', () => {
-            const canvas = document.getElementById('canvas-confeti');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
