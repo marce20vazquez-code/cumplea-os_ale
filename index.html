@@ -16,7 +16,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
             user-select: none;
         }
@@ -110,7 +110,7 @@
 
         /* --- TÍTULO 3D MULTICOLOR --- */
         .titulo-3d {
-            font-size: clamp(2.2rem, 6vw, 3.8rem);
+            font-size: clamp(2.5rem, 7vw, 4.2rem);
             font-weight: 900;
             margin: 10px 0 5px 0;
             text-transform: uppercase;
@@ -256,20 +256,19 @@
         #carrusel-container {
             position: relative;
             width: 100%;
-            max-width: 100%;
-            height: 400px;
+            max-width: 500px;
+            height: 480px;
             display: none; /* Oculto hasta que se cumpla el minuto */
             overflow: hidden;
             z-index: 10;
-            margin-top: 15px;
         }
 
         /* La cuerda fija de lado a lado */
         .cuerda {
             position: absolute;
             top: 40px;
-            left: -5%;
-            width: 110%;
+            left: -10%;
+            width: 120%;
             height: 4px;
             background: rgba(255, 255, 255, 0.6);
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
@@ -277,16 +276,17 @@
             z-index: 8;
         }
 
-        /* La pista horizontal donde se mueven las fotos como tren */
+        /* La vía o pista horizontal donde se mueven las fotos como tren */
         #pista-tren {
             position: absolute;
             top: 50px;
             left: 0;
             display: flex;
-            gap: 40px;
-            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            gap: 60px; /* Espacio entre cada foto/vagón */
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 9;
-            padding-left: 30px;
+            padding-left: calc(50% - 110px); /* Centrar la primera foto */
+            padding-right: calc(50% - 110px);
         }
 
         .foto-wrapper {
@@ -295,7 +295,6 @@
             align-items: center;
             transform-origin: top center;
             animation: balanceoTren 3s ease-in-out infinite alternate;
-            flex-shrink: 0;
         }
 
         /* Pinza que sujeta cada foto a la cuerda */
@@ -312,11 +311,11 @@
         }
 
         img.foto-carrusel {
-            border: 5px solid white;
+            border: 6px solid white;
             border-radius: 8px;
             box-shadow: 0px 10px 25px rgba(0,0,0,0.7);
-            width: 200px;
-            height: 250px;
+            width: 220px;
+            height: 280px;
             object-fit: cover;
         }
 
@@ -328,7 +327,7 @@
         /* --- BOTÓN DE PANTALLA COMPLETA EN LA PARTE INFERIOR --- */
         #btn-pantalla-completa {
             margin-top: auto;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             background: rgba(255, 255, 255, 0.15);
             color: #ffffff;
             border: 2px solid rgba(255, 255, 255, 0.4);
@@ -589,23 +588,18 @@
             });
         });
 
-        // 3. MOVIMIENTO DE TREN FLUIDO PARA LAS FOTOS
+        // 3. MOVIMIENTO DE TREN PARA LAS FOTOS
         function iniciarTrenFotos() {
             if (wrappersPrecargados.length === 0) return;
 
             wrappersPrecargados.forEach(w => pistaTren.appendChild(w));
 
             setInterval(() => {
-                indiceFotoActual++;
-                // Si llega al final, regresa al inicio de manera fluida
-                if (indiceFotoActual >= wrappersPrecargados.length) {
-                    indiceFotoActual = 0;
-                }
-                // Ancho de la foto (200px) + el espacio de separación (gap de 40px) = 240px por paso
-                const paso = 240;
-                const desplazamiento = indiceFotoActual * paso;
+                indiceFotoActual = (indiceFotoActual + 1) % wrappersPrecargados.length;
+                // Cada foto mide aproximadamente 220px de ancho + 60px de espacio (gap) = 280px por desplazamiento
+                const desplazamiento = indiceFotoActual * 280;
                 pistaTren.style.transform = `translateX(-${desplazamiento}px)`;
-            }, 3500);
+            }, 4000);
         }
 
         // 4. GLOBOS FLOTANTES
