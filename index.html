@@ -252,8 +252,8 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* --- CARRUSEL DE FOTOS --- */
-        #carrusel {
+        /* --- CARRUSEL TIPO TENDEDERO / CUERDA --- */
+        #carrusel-container {
             position: relative;
             width: 100%;
             max-width: 400px;
@@ -264,19 +264,60 @@
             z-index: 10;
         }
 
-        img.foto-carrusel {
+        /* La cuerda que cruza la pantalla de lado a lado */
+        .cuerda {
             position: absolute;
-            border: 6px solid white;
-            border-radius: 18px;
-            box-shadow: 0px 10px 25px rgba(0,0,0,0.7);
-            max-width: 100%;
-            max-height: 100%;
-            opacity: 0;
-            transition: opacity 1.2s ease-in-out;
+            top: 40px;
+            left: -10%;
+            width: 120%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            transform: rotate(-2deg);
+            z-index: 8;
         }
 
-        img.foto-carrusel.activa {
+        .foto-wrapper {
+            position: absolute;
+            top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
+            transform-origin: top center;
+        }
+
+        .foto-wrapper.activa {
             opacity: 1;
+            animation: balanceo 3s ease-in-out infinite alternate;
+        }
+
+        /* Pinza que sostiene la foto arriba */
+        .pinza {
+            width: 14px;
+            height: 24px;
+            background: #d7ccc8;
+            border: 1px solid #8d6e63;
+            border-radius: 2px;
+            position: relative;
+            top: 5px;
+            z-index: 9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        img.foto-carrusel {
+            border: 6px solid white;
+            border-radius: 8px;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.7);
+            max-width: 280px;
+            max-height: 360px;
+            object-fit: cover;
+        }
+
+        @keyframes balanceo {
+            0% { transform: rotate(-2deg); }
+            100% { transform: rotate(2deg); }
         }
 
         /* --- GLOBOS FLOTANTES --- */
@@ -337,8 +378,11 @@
         <div id="caja-regalo">🎁</div>
     </div>
 
-    <!-- CARRUSEL DE FOTOS (SE REVELA AL FINALIZAR LAS MAÑANITAS) -->
-    <div id="carrusel"></div>
+    <!-- CARRUSEL DE FOTOS (TIPO TENDEDERO) -->
+    <div id="carrusel-container">
+        <div class="cuerda"></div>
+        <div id="carrusel-fotos"></div>
+    </div>
 
     <!-- REPRODUCTOR -->
     <audio id="reproductor"></audio>
@@ -353,9 +397,10 @@
         const barraCarga = document.getElementById('barra-carga');
         const textoCarga = document.getElementById('texto-carga');
         const escenaMañanitas = document.getElementById('escena-mañanitas');
-        const contenedorCarrusel = document.getElementById('carrusel');
+        const contenedorCarrusel = document.getElementById('carrusel-container');
+        const divFotos = document.getElementById('carrusel-fotos');
 
-        let imagenesPrecargadas = [];
+        let wrappersPrecargados = [];
         let cancionInicial = null;
         let cancionesAleatorias = [];
         let primeraCancionSonada = false;
@@ -391,10 +436,19 @@
             }
 
             fotosArchivos.forEach(archivo => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'foto-wrapper';
+
+                const pinza = document.createElement('div');
+                pinza.className = 'pinza';
+
                 const img = new Image();
                 img.src = `fotos/${archivo.name}`;
                 img.className = 'foto-carrusel';
                 img.alt = archivo.name;
+
+                wrapper.appendChild(pinza);
+                wrapper.appendChild(img);
 
                 img.onload = () => {
                     fotosCargadas++;
@@ -402,7 +456,7 @@
                     barraCarga.style.width = porcentaje + '%';
                     textoCarga.innerText = `Cargando fotos... ${porcentaje}%`;
 
-                    imagenesPrecargadas.push(img);
+                    wrappersPrecargados.push(wrapper);
 
                     if (fotosCargadas === totalFotos) {
                         textoCarga.innerText = "¡Fotos listas! ✨";
@@ -451,7 +505,7 @@
                     }, i * 200);
                 }
 
-                // Transición: Ocultar escena del pastel y revelar carrusel de fotos
+                // Transición: Ocultar escena del pastel y revelar carrusel de fotos colgadas
                 setTimeout(() => {
                     escenaMañanitas.style.transform = 'scale(0.8)';
                     escenaMañanitas.style.opacity = '0';
@@ -474,17 +528,17 @@
             });
         });
 
-        // 3. CARRUSEL DE FOTOS
+        // 3. CARRUSEL DE FOTOS TIPO TENDEDERO
         function iniciarCarruselFotos() {
-            if (imagenesPrecargadas.length === 0) return;
+            if (wrappersPrecargados.length === 0) return;
 
-            imagenesPrecargadas.forEach(img => contenedorCarrusel.appendChild(img));
-            imagenesPrecargadas[0].classList.add('activa');
+            wrappersPrecargados.forEach(w => divFotos.appendChild(w));
+            wrappersPrecargados[0].classList.add('activa');
 
             setInterval(() => {
-                imagenesPrecargadas[indiceFotoActual].classList.remove('activa');
-                indiceFotoActual = (indiceFotoActual + 1) % imagenesPrecargadas.length;
-                imagenesPrecargadas[indiceFotoActual].classList.add('activa');
+                wrappersPrecargados[indiceFotoActual].classList.remove('activa');
+                indiceFotoActual = (indiceFotoActual + 1) % wrappersPrecargados.length;
+                wrappersPrecargados[indiceFotoActual].classList.add('activa');
             }, 4000);
         }
 
@@ -514,7 +568,6 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            // Generar Confeti
             const colores = ['#ffeb3b', '#e91e63', '#00e676', '#00e5ff', '#ff9100', '#ffffff'];
             for (let i = 0; i < 80; i++) {
                 particulasConfeti.push({
@@ -529,13 +582,10 @@
                 });
             }
 
-            // Crear notas desde el vinilo periódicamente
             setInterval(crearNotaMusical, 1200);
-
             animarCanvas();
         }
 
-        // FUEGOS ARTIFICIALES EN CADA TOUCH / CLIC
         window.addEventListener('pointerdown', (e) => {
             if (pantallaBienvenida.style.display !== 'none') return;
             crearFuegoArtificial(e.clientX, e.clientY);
@@ -574,7 +624,6 @@
         function animarCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // DIBUJAR CONFETI
             particulasConfeti.forEach((p) => {
                 ctx.beginPath();
                 ctx.lineWidth = p.r;
@@ -593,7 +642,6 @@
                 }
             });
 
-            // DIBUJAR FUEGOS ARTIFICIALES
             for (let i = particulasFuegos.length - 1; i >= 0; i--) {
                 const f = particulasFuegos[i];
                 ctx.save();
@@ -611,7 +659,6 @@
                 if (f.alpha <= 0) particulasFuegos.splice(i, 1);
             }
 
-            // DIBUJAR NOTAS MUSICALES
             for (let i = notasMusicales.length - 1; i >= 0; i--) {
                 const n = notasMusicales[i];
                 ctx.save();
