@@ -258,7 +258,7 @@
             width: 100%;
             max-width: 400px;
             height: 480px;
-            display: none; /* Oculto hasta que terminen las mañanitas */
+            display: none; /* Oculto hasta que se cumpla el minuto */
             justify-content: center;
             align-items: center;
             z-index: 10;
@@ -404,6 +404,7 @@
         let cancionInicial = null;
         let cancionesAleatorias = [];
         let primeraCancionSonada = false;
+        let reveladoPorTiempo = false;
         let indiceFotoActual = 0;
 
         const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
@@ -490,34 +491,48 @@
             reproductor.play().catch(e => console.log(e));
         }
 
-        // AL TERMINAR LAS MAÑANITAS -> APAGAR VELAS, ABRIR REGALO Y MOSTRAR FOTOS
+        // CONTROLAR EL TIEMPO: AL LLEGAR A LOS 60 SEGUNDOS (1 MINUTO) DE LAS MAÑANITAS
+        reproductor.addEventListener('timeupdate', () => {
+            if (!primeraCancionSonada && !reveladoPorTiempo && reproductor.currentTime >= 60) {
+                reveladoPorTiempo = triggerRevelacionFotos();
+            }
+        });
+
+        // AL TERMINAR LA CANCIÓN (POR SI DURA MENOS DE UN MINUTO)
         reproductor.addEventListener('ended', () => {
             if (!primeraCancionSonada) {
-                primeraCancionSonada = true;
-                
-                // Apagar velitas si aún siguen encendidas
-                document.querySelectorAll('.vela').forEach(v => v.classList.add('apagada'));
-
-                // Explotar fuegos artificiales de celebración
-                for(let i=0; i<5; i++) {
-                    setTimeout(() => {
-                        crearFuegoArtificial(window.innerWidth/2 + (Math.random()*200 - 100), window.innerHeight/2 + (Math.random()*200 - 100));
-                    }, i * 200);
-                }
-
-                // Transición: Ocultar escena del pastel y revelar carrusel de fotos colgadas
-                setTimeout(() => {
-                    escenaMañanitas.style.transform = 'scale(0.8)';
-                    escenaMañanitas.style.opacity = '0';
-                    setTimeout(() => {
-                        escenaMañanitas.style.display = 'none';
-                        contenedorCarrusel.style.display = 'flex';
-                        iniciarCarruselFotos();
-                    }, 800);
-                }, 1000);
+                triggerRevelacionFotos();
             }
             reproducirSiguiente();
         });
+
+        function triggerRevelacionFotos() {
+            if (primeraCancionSonada) return true;
+            primeraCancionSonada = true;
+            
+            // Apagar velitas si aún siguen encendidas
+            document.querySelectorAll('.vela').forEach(v => v.classList.add('apagada'));
+
+            // Explotar fuegos artificiales de celebración
+            for(let i=0; i<5; i++) {
+                setTimeout(() => {
+                    crearFuegoArtificial(window.innerWidth/2 + (Math.random()*200 - 100), window.innerHeight/2 + (Math.random()*200 - 100));
+                }, i * 200);
+            }
+
+            // Transición: Ocultar escena del pastel y revelar carrusel de fotos colgadas
+            setTimeout(() => {
+                escenaMañanitas.style.transform = 'scale(0.8)';
+                escenaMañanitas.style.opacity = '0';
+                setTimeout(() => {
+                    escenaMañanitas.style.display = 'none';
+                    contenedorCarrusel.style.display = 'flex';
+                    iniciarCarruselFotos();
+                }, 800);
+            }, 1000);
+
+            return true;
+        }
 
         // SOPLAR VELAS AL HACER CLIC EN EL PASTEL
         document.querySelectorAll('.vela').forEach(vela => {
