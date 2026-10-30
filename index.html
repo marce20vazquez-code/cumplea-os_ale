@@ -16,7 +16,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
             user-select: none;
         }
@@ -110,7 +110,7 @@
 
         /* --- TÍTULO 3D MULTICOLOR --- */
         .titulo-3d {
-            font-size: clamp(2.5rem, 7vw, 4.2rem);
+            font-size: clamp(2.2rem, 6vw, 3.8rem);
             font-weight: 900;
             margin: 10px 0 5px 0;
             text-transform: uppercase;
@@ -252,48 +252,53 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* --- CARRUSEL TIPO TENDEDERO / CUERDA --- */
+        /* --- TREN DE FOTOS EN CUERDA --- */
         #carrusel-container {
             position: relative;
             width: 100%;
-            max-width: 400px;
-            height: 480px;
+            max-width: 100%;
+            height: 400px;
             display: none; /* Oculto hasta que se cumpla el minuto */
-            justify-content: center;
-            align-items: center;
+            overflow: hidden;
             z-index: 10;
+            margin-top: 15px;
         }
 
-        /* La cuerda que cruza la pantalla de lado a lado */
+        /* La cuerda fija de lado a lado */
         .cuerda {
             position: absolute;
             top: 40px;
-            left: -10%;
-            width: 120%;
+            left: -5%;
+            width: 110%;
             height: 4px;
             background: rgba(255, 255, 255, 0.6);
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            transform: rotate(-2deg);
+            transform: rotate(-1deg);
             z-index: 8;
         }
 
-        .foto-wrapper {
+        /* La pista horizontal donde se mueven las fotos como tren */
+        #pista-tren {
             position: absolute;
             top: 50px;
+            left: 0;
+            display: flex;
+            gap: 40px;
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 9;
+            padding-left: 30px;
+        }
+
+        .foto-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
-            opacity: 0;
-            transition: opacity 1.2s ease-in-out, transform 1.2s ease-in-out;
             transform-origin: top center;
+            animation: balanceoTren 3s ease-in-out infinite alternate;
+            flex-shrink: 0;
         }
 
-        .foto-wrapper.activa {
-            opacity: 1;
-            animation: balanceo 3s ease-in-out infinite alternate;
-        }
-
-        /* Pinza que sostiene la foto arriba */
+        /* Pinza que sujeta cada foto a la cuerda */
         .pinza {
             width: 14px;
             height: 24px;
@@ -302,28 +307,28 @@
             border-radius: 2px;
             position: relative;
             top: 5px;
-            z-index: 9;
+            z-index: 10;
             box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
         img.foto-carrusel {
-            border: 6px solid white;
+            border: 5px solid white;
             border-radius: 8px;
             box-shadow: 0px 10px 25px rgba(0,0,0,0.7);
-            max-width: 280px;
-            max-height: 360px;
+            width: 200px;
+            height: 250px;
             object-fit: cover;
         }
 
-        @keyframes balanceo {
-            0% { transform: rotate(-2deg); }
-            100% { transform: rotate(2deg); }
+        @keyframes balanceoTren {
+            0% { transform: rotate(-1.5deg); }
+            100% { transform: rotate(1.5deg); }
         }
 
         /* --- BOTÓN DE PANTALLA COMPLETA EN LA PARTE INFERIOR --- */
         #btn-pantalla-completa {
             margin-top: auto;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.15);
             color: #ffffff;
             border: 2px solid rgba(255, 255, 255, 0.4);
@@ -399,10 +404,10 @@
         <div id="caja-regalo">🎁</div>
     </div>
 
-    <!-- CARRUSEL DE FOTOS (TIPO TENDEDERO) -->
+    <!-- TREN DE FOTOS EN CUERDA -->
     <div id="carrusel-container">
         <div class="cuerda"></div>
-        <div id="carrusel-fotos"></div>
+        <div id="pista-tren"></div>
     </div>
 
     <!-- BOTÓN DE PANTALLA COMPLETA INFERIOR -->
@@ -422,7 +427,7 @@
         const textoCarga = document.getElementById('texto-carga');
         const escenaMañanitas = document.getElementById('escena-mañanitas');
         const contenedorCarrusel = document.getElementById('carrusel-container');
-        const divFotos = document.getElementById('carrusel-fotos');
+        const pistaTren = document.getElementById('pista-tren');
         const btnPantallaCompleta = document.getElementById('btn-pantalla-completa');
 
         let wrappersPrecargados = [];
@@ -450,7 +455,6 @@
             }
         });
 
-        // Actualizar el texto del botón si el usuario sale con la tecla ESC
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 btnPantallaCompleta.innerText = "⛶ Pantalla Completa";
@@ -545,7 +549,6 @@
             }
         });
 
-        // AL TERMINAR LA CANCIÓN (POR SI DURA MENOS DE UN MINUTO)
         reproductor.addEventListener('ended', () => {
             if (!primeraCancionSonada) {
                 triggerRevelacionFotos();
@@ -557,31 +560,27 @@
             if (primeraCancionSonada) return true;
             primeraCancionSonada = true;
             
-            // Apagar velitas si aún siguen encendidas
             document.querySelectorAll('.vela').forEach(v => v.classList.add('apagada'));
 
-            // Explotar fuegos artificiales de celebración
             for(let i=0; i<5; i++) {
                 setTimeout(() => {
                     crearFuegoArtificial(window.innerWidth/2 + (Math.random()*200 - 100), window.innerHeight/2 + (Math.random()*200 - 100));
                 }, i * 200);
             }
 
-            // Transición: Ocultar escena del pastel y revelar carrusel de fotos colgadas
             setTimeout(() => {
                 escenaMañanitas.style.transform = 'scale(0.8)';
                 escenaMañanitas.style.opacity = '0';
                 setTimeout(() => {
                     escenaMañanitas.style.display = 'none';
-                    contenedorCarrusel.style.display = 'flex';
-                    iniciarCarruselFotos();
+                    contenedorCarrusel.style.display = 'block';
+                    iniciarTrenFotos();
                 }, 800);
             }, 1000);
 
             return true;
         }
 
-        // SOPLAR VELAS AL HACER CLIC EN EL PASTEL
         document.querySelectorAll('.vela').forEach(vela => {
             vela.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -590,18 +589,23 @@
             });
         });
 
-        // 3. CARRUSEL DE FOTOS TIPO TENDEDERO
-        function iniciarCarruselFotos() {
+        // 3. MOVIMIENTO DE TREN FLUIDO PARA LAS FOTOS
+        function iniciarTrenFotos() {
             if (wrappersPrecargados.length === 0) return;
 
-            wrappersPrecargados.forEach(w => divFotos.appendChild(w));
-            wrappersPrecargados[0].classList.add('activa');
+            wrappersPrecargados.forEach(w => pistaTren.appendChild(w));
 
             setInterval(() => {
-                wrappersPrecargados[indiceFotoActual].classList.remove('activa');
-                indiceFotoActual = (indiceFotoActual + 1) % wrappersPrecargados.length;
-                wrappersPrecargados[indiceFotoActual].classList.add('activa');
-            }, 4000);
+                indiceFotoActual++;
+                // Si llega al final, regresa al inicio de manera fluida
+                if (indiceFotoActual >= wrappersPrecargados.length) {
+                    indiceFotoActual = 0;
+                }
+                // Ancho de la foto (200px) + el espacio de separación (gap de 40px) = 240px por paso
+                const paso = 240;
+                const desplazamiento = indiceFotoActual * paso;
+                pistaTren.style.transform = `translateX(-${desplazamiento}px)`;
+            }, 3500);
         }
 
         // 4. GLOBOS FLOTANTES
@@ -700,7 +704,7 @@
 
                 if (p.y > canvas.height) {
                     p.x = Math.random() * canvas.width;
-                    p.y -= 20;
+                    p.y = -20;
                 }
             });
 
