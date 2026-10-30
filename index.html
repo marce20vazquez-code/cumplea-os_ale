@@ -320,6 +320,27 @@
             100% { transform: rotate(2deg); }
         }
 
+        /* --- BOTÓN DE PANTALLA COMPLETA EN LA PARTE INFERIOR --- */
+        #btn-pantalla-completa {
+            margin-top: auto;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            z-index: 20;
+            transition: background 0.3s ease, transform 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        #btn-pantalla-completa:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
         /* --- GLOBOS FLOTANTES --- */
         .globo-flotante {
             position: fixed;
@@ -384,6 +405,9 @@
         <div id="carrusel-fotos"></div>
     </div>
 
+    <!-- BOTÓN DE PANTALLA COMPLETA INFERIOR -->
+    <button id="btn-pantalla-completa">⛶ Pantalla Completa</button>
+
     <!-- REPRODUCTOR -->
     <audio id="reproductor"></audio>
 
@@ -399,6 +423,7 @@
         const escenaMañanitas = document.getElementById('escena-mañanitas');
         const contenedorCarrusel = document.getElementById('carrusel-container');
         const divFotos = document.getElementById('carrusel-fotos');
+        const btnPantallaCompleta = document.getElementById('btn-pantalla-completa');
 
         let wrappersPrecargados = [];
         let cancionInicial = null;
@@ -409,6 +434,28 @@
 
         const urlFotos = `https://api.github.com/repos/${usuario}/${repositorio}/contents/fotos`;
         const urlMusica = `https://api.github.com/repos/${usuario}/${repositorio}/contents/musica`;
+
+        // LÓGICA DE PANTALLA COMPLETA
+        btnPantallaCompleta.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Error al intentar activar pantalla completa: ", err);
+                });
+                btnPantallaCompleta.innerText = "⛶ Salir de Pantalla Completa";
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                btnPantallaCompleta.innerText = "⛶ Pantalla Completa";
+            }
+        });
+
+        // Actualizar el texto del botón si el usuario sale con la tecla ESC
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                btnPantallaCompleta.innerText = "⛶ Pantalla Completa";
+            }
+        });
 
         // 1. CARGA DE ARCHIVOS Y PRE-CARGA DE FOTOS
         Promise.all([
@@ -653,7 +700,7 @@
 
                 if (p.y > canvas.height) {
                     p.x = Math.random() * canvas.width;
-                    p.y = -20;
+                    p.y -= 20;
                 }
             });
 
