@@ -261,13 +261,12 @@
             width: 100%;
             max-width: 100%;
             height: 440px;
-            display: none; /* Oculto hasta que se cumpla el minuto */
+            display: none;
             overflow: hidden;
             z-index: 10;
             margin-top: 10px;
         }
 
-        /* La cuerda fija de lado a lado */
         .cuerda {
             position: absolute;
             top: 35px;
@@ -280,16 +279,16 @@
             z-index: 8;
         }
 
-        /* La pista horizontal del tren */
         #pista-tren {
             position: absolute;
             top: 45px;
             left: 0;
             display: flex;
-            gap: 35px; /* Espacio ajustado para fotos más grandes */
-            transition: transform 1.8s cubic-bezier(0.25, 1, 0.5, 1); /* Transición más lenta y suave */
+            gap: 35px;
+            transition: transform 1.8s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 9;
             padding-left: 30px;
+            will-change: transform;
         }
 
         .foto-wrapper {
@@ -301,7 +300,6 @@
             flex-shrink: 0;
         }
 
-        /* Pinza que sujeta cada foto a la cuerda */
         .pinza {
             width: 14px;
             height: 22px;
@@ -314,7 +312,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
-        /* FOTOS MÁS GRANDES */
         img.foto-carrusel {
             border: 5px solid white;
             border-radius: 8px;
@@ -369,7 +366,7 @@
 </head>
 <body>
 
-    <!-- CANVAS DE EFECTOS (CONFETI + FUEGOS ARTIFICIALES) -->
+    <!-- CANVAS DE EFECTOS OPTIMIZADO -->
     <canvas id="canvas-efectos"></canvas>
 
     <!-- DISCO DE VINILO -->
@@ -391,7 +388,7 @@
         <div id="texto-carga">Cargando recuerdos... 0%</div>
     </div>
 
-    <!-- ESCENA DEL PASTEL Y REGALO (DURANTE LAS MAÑANITAS) -->
+    <!-- ESCENA DEL PASTEL Y REGALO -->
     <div id="escena-mañanitas">
         <div class="instruccion-pastel">✨ Toca las velas para soplarlas | Toca la pantalla para fuegos artificiales ✨</div>
         
@@ -546,7 +543,6 @@
             reproductor.play().catch(e => console.log(e));
         }
 
-        // CONTROLAR EL TIEMPO: AL LLEGAR A LOS 60 SEGUNDOS (1 MINUTO) DE LAS MAÑANITAS
         reproductor.addEventListener('timeupdate', () => {
             if (!primeraCancionSonada && !reveladoPorTiempo && reproductor.currentTime >= 60) {
                 reveladoPorTiempo = triggerRevelacionFotos();
@@ -566,7 +562,7 @@
             
             document.querySelectorAll('.vela').forEach(v => v.classList.add('apagada'));
 
-            for(let i=0; i<5; i++) {
+            for(let i=0; i<4; i++) {
                 setTimeout(() => {
                     crearFuegoArtificial(window.innerWidth/2 + (Math.random()*200 - 100), window.innerHeight/2 + (Math.random()*200 - 100));
                 }, i * 200);
@@ -593,7 +589,7 @@
             });
         });
 
-        // 3. MOVIMIENTO DE TREN MÁS LENTO Y FLUIDO
+        // 3. TREN DE FOTOS FLUIDO
         function iniciarTrenFotos() {
             if (wrappersPrecargados.length === 0) return;
 
@@ -607,11 +603,11 @@
                 
                 const primerWrapper = pistaTren.querySelector('.foto-wrapper');
                 if (primerWrapper) {
-                    const anchoElemento = primerWrapper.offsetWidth + 35; // 35px es el nuevo gap
+                    const anchoElemento = primerWrapper.offsetWidth + 35;
                     const desplazamiento = indiceFotoActual * anchoElemento;
                     pistaTren.style.transform = `translateX(-${desplazamiento}px)`;
                 }
-            }, 5500); // Cambiado a 5.5 segundos para que vaya más lento y se alcance a apreciar bien cada foto
+            }, 5500);
         }
 
         // 4. GLOBOS FLOTANTES
@@ -626,10 +622,10 @@
                 document.body.appendChild(el);
 
                 setTimeout(() => el.remove(), 8000);
-            }, 600);
+            }, 800);
         }
 
-        // 5. CANVAS: CONFETI + FUEGOS ARTIFICIALES AL TOCAR + NOTAS MUSICALES
+        // 5. CANVAS OPTIMIZADO (MENOS PARTICULAS PARA CERO TRABAS)
         const canvas = document.getElementById('canvas-efectos');
         const ctx = canvas.getContext('2d');
         let particulasConfeti = [];
@@ -641,7 +637,8 @@
             canvas.height = window.innerHeight;
 
             const colores = ['#ffeb3b', '#e91e63', '#00e676', '#00e5ff', '#ff9100', '#ffffff'];
-            for (let i = 0; i < 80; i++) {
+            // Reducido de 80 a 35 partículas para optimizar rendimiento y evitar trabas
+            for (let i = 0; i < 35; i++) {
                 particulasConfeti.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height - canvas.height,
@@ -654,7 +651,7 @@
                 });
             }
 
-            setInterval(crearNotaMusical, 1200);
+            setInterval(crearNotaMusical, 2000);
             animarCanvas();
         }
 
@@ -665,9 +662,9 @@
 
         function crearFuegoArtificial(x, y) {
             const colores = ['#ffeb3b', '#ff4081', '#00e5ff', '#76ff03', '#ffffff', '#ff9100'];
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 20; i++) {
                 const angulo = Math.random() * Math.PI * 2;
-                const velocidad = Math.random() * 6 + 2;
+                const velocidad = Math.random() * 5 + 2;
                 particulasFuegos.push({
                     x: x,
                     y: y,
@@ -689,7 +686,7 @@
                 vx: (Math.random() - 1) * 1.5,
                 vy: -Math.random() * 2 - 1,
                 alpha: 1,
-                tamano: Math.random() * 10 + 18
+                tamano: 18
             });
         }
 
@@ -726,7 +723,7 @@
 
                 f.x += f.vx;
                 f.y += f.vy;
-                f.alpha -= 0.025;
+                f.alpha -= 0.03;
 
                 if (f.alpha <= 0) particulasFuegos.splice(i, 1);
             }
@@ -742,7 +739,7 @@
 
                 n.x += n.vx;
                 n.y += n.vy;
-                n.alpha -= 0.012;
+                n.alpha -= 0.015;
 
                 if (n.alpha <= 0) notasMusicales.splice(i, 1);
             }
