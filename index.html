@@ -113,7 +113,7 @@
         .titulo-3d {
             font-size: clamp(1.8rem, 5.5vw, 3.8rem);
             font-weight: 900;
-            margin: 5px 0;
+            margin: 10px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
             animation: flotar3D 3s ease-in-out infinite alternate, cambioColor 6s linear infinite;
@@ -142,6 +142,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             margin: 5px 0 10px 0;
             z-index: 10;
+            transition: opacity 0.5s ease;
         }
 
         #barra-carga {
@@ -255,33 +256,35 @@
             50% { transform: translateY(-8px); }
         }
 
-        /* --- TREN DE FOTOS EN CUERDA MÁS GRANDE Y FLUIDO --- */
+        /* --- TREN DE FOTOS EN CUERDA (CORREGIDO ALINEACIÓN) --- */
         #carrusel-container {
             position: relative;
             width: 100%;
             max-width: 100%;
-            height: 440px;
+            height: 480px;
             display: none;
             overflow: hidden;
             z-index: 10;
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
+        /* La cuerda fija cruzando la parte superior del carrusel */
         .cuerda {
             position: absolute;
-            top: 35px;
+            top: 12px;
             left: -5%;
             width: 110%;
             height: 3px;
-            background: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6);
             transform: rotate(-1deg);
             z-index: 8;
         }
 
+        /* La pista horizontal del tren alineada exactamente debajo de la cuerda */
         #pista-tren {
             position: absolute;
-            top: 45px;
+            top: 20px;
             left: 0;
             display: flex;
             gap: 35px;
@@ -300,6 +303,7 @@
             flex-shrink: 0;
         }
 
+        /* Pinza ajustada para morder exactamente la cuerda */
         .pinza {
             width: 14px;
             height: 22px;
@@ -307,7 +311,7 @@
             border: 1px solid #8d6e63;
             border-radius: 2px;
             position: relative;
-            top: 5px;
+            top: 3px;
             z-index: 10;
             box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
@@ -424,6 +428,7 @@
         const pantallaBienvenida = document.getElementById('pantalla-bienvenida');
         const reproductor = document.getElementById('reproductor');
         const discoVinilo = document.getElementById('disco-vinilo');
+        const contenedorCarga = document.getElementById('contenedor-carga');
         const barraCarga = document.getElementById('barra-carga');
         const textoCarga = document.getElementById('texto-carga');
         const escenaMañanitas = document.getElementById('escena-mañanitas');
@@ -513,6 +518,11 @@
 
                     if (fotosCargadas === totalFotos) {
                         textoCarga.innerText = "¡Fotos listas! ✨";
+                        // Ocultar barra de carga suavemente tras completarse
+                        setTimeout(() => {
+                            contenedorCarga.style.opacity = '0';
+                            setTimeout(() => contenedorCarga.style.display = 'none', 500);
+                        }, 800);
                     }
                 };
 
@@ -589,7 +599,7 @@
             });
         });
 
-        // 3. TREN DE FOTOS FLUIDO
+        // 3. TREN DE FOTOS FLUIDO (NUNCA PARA)
         function iniciarTrenFotos() {
             if (wrappersPrecargados.length === 0) return;
 
@@ -625,7 +635,7 @@
             }, 800);
         }
 
-        // 5. CANVAS OPTIMIZADO (MENOS PARTICULAS PARA CERO TRABAS)
+        // 5. CANVAS OPTIMIZADO
         const canvas = document.getElementById('canvas-efectos');
         const ctx = canvas.getContext('2d');
         let particulasConfeti = [];
@@ -637,7 +647,6 @@
             canvas.height = window.innerHeight;
 
             const colores = ['#ffeb3b', '#e91e63', '#00e676', '#00e5ff', '#ff9100', '#ffffff'];
-            // Reducido de 80 a 35 partículas para optimizar rendimiento y evitar trabas
             for (let i = 0; i < 35; i++) {
                 particulasConfeti.push({
                     x: Math.random() * canvas.width,
